@@ -21,6 +21,8 @@ INITIAL_NODE_ID=<A FLOCKER NODE ID TO SEED A VOLUME>
 VOLUME_PREFIX=<any name to prefix your volumes with>
 KUBECONFIG=clusters/<K8s Cluster Name>/kubeconfig
 
+# NFS Server Specific Environment Variables
+NFS_SERVER=nfs-server
 
 count:
 	@echo 'Current Number of MongoDB Replicas: $(NUM_REPLICAS)'
@@ -50,6 +52,13 @@ ifeq ($(ENV),FLOCKERAWS)
 	-sed -e 's/<num>/$(NEW_REPLICA_NUM)/g' -e 's/VOLUME_PREFIX/$(VOLUME_PREFIX)/g' mongo-controller-flocker-template.yaml | tee mongo-rc-$(NEW_REPLICA_NUM).yaml
 	-kubectl create -f mongo-rc-$(NEW_REPLICA_NUM).yaml
 endif
+ifeq ($(ENV),NFS)
+	@echo 'Adding Replica $(NEW_REPLICA_NUM)'
+
+	-touch mongo-rc-$(NEW_REPLICA_NUM).yaml
+	-sed -e 's/NFS_SERVER/$(NFS_SERVER)/g' -e 's/<num>/$(NEW_REPLICA_NUM)/g' -e 's/VOLUME_PREFIX/$(VOLUME_PREFIX)/g' mongo-controller-nfs-template.yaml | tee mongo-rc-$(NEW_REPLICA_NUM).yaml
+	-kubectl create -f mongo-rc-$(NEW_REPLICA_NUM).yaml
+endif
 ifeq ($(CREATE_SERVICE),TRUE)
 	@echo 'Creating Service'
 	-sed -e 's~<num>~$(NEW_REPLICA_NUM)~g' mongo-service-template.yaml | kubectl create -f -
@@ -68,4 +77,8 @@ ifeq ($(ENV),GoogleCloudPlatform)
 endif
 ifeq ($(ENV),AWS)
 	@echo 'AWS not supported yet'
+endif
+ifeq ($(ENV),NFS)
+	@echo 'Deleting Replic NFS'
+	-kubectl delete rc mongo-$(NUM_REPLICAS)
 endif
