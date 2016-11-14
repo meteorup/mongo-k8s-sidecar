@@ -17,8 +17,10 @@ metadata:
     name: mongo-<num>
   name: mongo-<num>
 spec:
+  type: NodePort
   ports:
     - port: 27017
       targetPort: 27017
+      nodePort: 3210<num>
   selector:
     name: mongo-node-<num>
