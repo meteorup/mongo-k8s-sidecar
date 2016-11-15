@@ -59,6 +59,13 @@ ifeq ($(ENV),NFS)
 	-sed -e 's/NFS_SERVER/$(NFS_SERVER)/g' -e 's/<num>/$(NEW_REPLICA_NUM)/g' -e 's/VOLUME_PREFIX/$(VOLUME_PREFIX)/g' mongo-controller-nfs-template.yaml | tee mongo-rc-$(NEW_REPLICA_NUM).yaml
 	-kubectl create -f mongo-rc-$(NEW_REPLICA_NUM).yaml
 endif
+ifeq ($(ENV),HOST)
+	@echo 'Adding Replica $(NEW_REPLICA_NUM)'
+
+	-touch mongo-rc-$(NEW_REPLICA_NUM).yaml
+	-sed -e 's/<num>/$(NEW_REPLICA_NUM)/g' mongo-controller-host-template.yaml | tee mongo-rc-$(NEW_REPLICA_NUM).yaml
+	-kubectl create -f mongo-rc-$(NEW_REPLICA_NUM).yaml
+endif
 ifeq ($(CREATE_SERVICE),TRUE)
 	@echo 'Creating Service'
 	-sed -e 's~<num>~$(NEW_REPLICA_NUM)~g' mongo-service-template.yaml | kubectl create -f -
