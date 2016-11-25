@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: mongo-node-<num>
-          image: mongo
+          image: registry-internal.cn-beijing.aliyuncs.com/meteorup/mongo
           command:
             - mongod
             - "--replSet"
@@ -37,14 +37,14 @@ spec:
             - name: mongo-persistent-storage
               mountPath: /data/db
         - name: mongo-sidecar
-          image: leportlabs/mongo-k8s-sidecar
+          image: registry-internal.cn-beijing.aliyuncs.com/meteorup/mongo-k8s-sidecar
           env:
             - name: MONGO_SIDECAR_POD_LABELS
               value: "role=mongo,environment=test"
       volumes:
         - name: mongo-persistent-storage
           hostPath:
-            path: /usr/local/nfs/mongodb/mongo-storage-<num>
+            path: /data/mongodb/mongo-storage-<num>
     metadata:
       labels:
         name: mongo-node-<num>
